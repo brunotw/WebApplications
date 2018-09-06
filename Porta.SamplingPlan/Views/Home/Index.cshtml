@@ -1,0 +1,99 @@
+﻿@model IW.Eims.SamplingPlan.Models.LandingPage
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <fieldset>
+                <legend>
+                    Irish Water National Regulatory Plan @Model.CurrentDate.Year - Read Me
+
+                </legend>
+                <div class="row">
+                    <div class="col-sm-11">
+                        <p>Overview and Scope</p>
+                        <p>Text to be Provided and upated by IW along with High Level Instruction on how to use the Web Resource</p>
+                        <p>Instructions</p>
+                        <p>Please Select your Local Authority from the list below. This will bring you to the your Compliance Monitoring Plan.</p>
+                        <p>Here you will find a list of Water Supply Zones. You can view the Parameters and Pesticides you will be required to test for:</p>
+                        <p>Please Select a month to view the Sampling Requirement for that month. You can request to make a change to the number of Group. A (Check) Sample to be taken in that month or the number of Group B (Audit) Samples to be taken in that month.</p>
+                        <p>If you wih to request a change please add a reason to the "Justification for Changes" text box and press save.</p>
+                        <p>If you are in agreement with the Sampling Requirement please "Confirm Plan (No Changes)" button</p>
+                    </div>
+                    <div>
+                        <a href="#" data-toggle="modal" data-target="#exampleModalCenter">
+                            <span class="glyphicon glyphicon-info-sign"></span>
+                        </a>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <fieldset>
+                <legend>
+                    DW Regularory Sampling Plans
+                </legend>
+
+                <div>
+                    <table id="laTableId">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Local Authority
+                                </th>
+                                <th>
+                                    Count of WSZ Sampling Plan
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var dw in Model.DWSamplingPlans)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.ActionLink(dw.LocalAuthority.Name, "Index", "LocalAuthorityDetail", new { id = dw.Id }, null)
+                                    </td>
+                                    <td>
+                                        @dw.WSZSamplingPlans.Count()
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Information</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Irish water must provide that content.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#laTableId').DataTable();
+    });
+</script>

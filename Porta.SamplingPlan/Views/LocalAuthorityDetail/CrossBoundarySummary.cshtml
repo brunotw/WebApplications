@@ -1,0 +1,40 @@
+﻿@model IEnumerable<IW.Eims.SamplingPlan.Models.CrossBoundary>
+
+@*<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/bootstrap.js"></script>*@
+
+<span>
+    <img src="~/Images/icon_search20x20.png" />  Cross Boundary
+</span>
+<br />
+<br />
+
+<table class="table table-striped" style="border:1px solid #dddddd">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.WaterSupplyZone)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FinalNumberOfGroupA)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FinalNumberOfGroupB)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.WaterSupplyZone.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FinalNumberOfGroupA)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FinalNumberOfGroupB)
+            </td>
+        </tr>
+    }
+
+</table>

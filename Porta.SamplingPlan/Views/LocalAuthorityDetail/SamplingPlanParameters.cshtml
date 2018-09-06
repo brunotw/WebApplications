@@ -1,0 +1,190 @@
+﻿@using IW.Eims.SamplingPlan.Models;
+@model  IEnumerable<SamplingPlanParameter>
+
+<style>
+    .true {
+        background-color: #96d1f2;
+        height: 30px;
+        width: 150px;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: white;
+    }
+
+    .false {
+        background-color: #abafad;
+        height: 30px;
+        width: 150px;
+        margin-bottom: 10px;
+        margin-right: 10px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: white;
+    }
+</style>
+
+<script>
+    $(document).ready(function ($) {
+        $(".false").click(changeClass);
+        $(".true").click(changeClass);
+
+        function changeClass(data) {
+            var id = "#" + data.target.id;
+            if ($(id).hasClass('true')) {
+                $(id).removeClass("true").addClass("false");
+            }
+            else {
+                $(id).addClass("true").removeClass("false");
+            }
+        }
+
+        var dwId = $("#dwId")[0].value;
+        LoadNarratives(dwId);
+    });
+
+    function LoadNarratives(dwId) {
+        var url = "/LocalAuthorityDetail/Narrative/" + dwId;
+        LoadPage(url, "#narrativeContainer", false, null);
+    }
+
+    function LoadPage(url, divIdDestination, cacheData, callBack) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            cache: cacheData,
+            success: function (data) {
+                $(divIdDestination).html(data);
+
+                if (callBack != null) {
+                    callBack(data);
+                }
+            }
+        });
+    }
+
+    function CheckChanges() {
+        var parameters = [];
+
+        var totalChecked = $(".true");
+        var totalUnchecked = $(".false");
+
+        for (var i = 0; i < totalChecked.length; i++) {
+            if (totalChecked[i].value != totalChecked[i].className) {
+                parameters.push({ Id: totalChecked[i].id, Included: totalChecked[i].className });
+            }
+        }
+
+        for (var i = 0; i < totalUnchecked.length; i++) {
+            if (totalUnchecked[i].value != totalUnchecked[i].className) {
+                parameters.push({ Id: totalUnchecked[i].id, Included: totalUnchecked[i].className });
+            }
+        }
+
+        if (parameters.length > 0)
+        {
+            var reason = $("#txtAreaJustificationForChanges")[0].value;
+            var dwId = $("#dwId")[0].value;
+
+            if (reason != "")
+            {
+                UpdateParameters(parameters, dwId, reason);
+            }
+            else
+            {
+                alert("Please, provide a reason in order to submit the changes.");
+            }
+        }
+        else
+        {
+            alert("There is no change.");
+        }
+    }
+
+    function UpdateParameters(parameters, dwId, reason)
+    {
+        $.post('@Url.Action("UpdateParameters", "LocalAuthorityDetail")',
+            {
+                parameters: parameters,
+                dwId: dwId,
+                reason: reason
+            },
+            function (data) {
+                alert("The changes hava been saved.");
+                $("#txtAreaJustificationForChanges")[0].value = "";
+                LoadNarratives(dwId);
+
+            }).fail(function (response, error, message) {
+                console.log(response.responseText);
+                alert("An error has ocurred. Check log for more details.");
+            });
+    }
+</script>
+
+<fieldset>
+    <legend style="font-size:12px; font-weight:bold">
+        Total Group A Parameters:
+        <input type="number" style="width:40px; margin:10px;" readonly value="@Model.Where(p => p.GroupType == SamplingPlanParameter.EGroupType.ACheck&& p.Included).Count()" />
+    </legend>
+
+    @{
+        foreach (var parameter in Model.Where(p => p.GroupType == SamplingPlanParameter.EGroupType.ACheck))
+        {
+            <button type="button" id="@parameter.Id" value="@parameter.Included.ToString().ToLower()" class="@parameter.Included.ToString().ToLower()">@parameter.Name</button>
+        }
+    }
+</fieldset>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#groupBAuditParametersMenu">Group B (Audit) Parameters</a></li>
+    <li><a data-toggle="tab" href="#individualPesticideParametersMenu">Individual Pesticide Parameters</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="groupBAuditParametersMenu" class="tab-pane active">
+        <div id="groupB">
+            <label>Total Group B Parameters: </label>
+            <input type="number" style="width:40px; margin:10px;" readonly value="@Model.Where(p => p.GroupType == SamplingPlanParameter.EGroupType.BAudit && p.Included).Count()" />
+
+            @{
+                foreach (var parameter in Model.Where(p => p.GroupType == SamplingPlanParameter.EGroupType.BAudit))
+                {
+                    <button type="button" id="@parameter.Id" value="@parameter.Included.ToString().ToLower()" class="@parameter.Included.ToString().ToLower()">@parameter.Name</button>
+                }
+            }
+        </div>
+
+    </div>
+
+    <div id="individualPesticideParametersMenu" class="tab-pane fade">
+        <div id="groupB">
+            <label>Total Pesticide Parameters: </label>
+            <input type="number" style="width:40px; margin:10px;" readonly value="@Model.Where(p => p.GroupType == SamplingPlanParameter.EGroupType.Pesticide && p.Included).Count()" />
+
+            <div>
+                @{
+                    foreach (var parameter in Model.Where(p => p.GroupType == SamplingPlanParameter.EGroupType.Pesticide))
+                    {
+                        <button type="button" id="@parameter.Id" value="@parameter.Included.ToString().ToLower()" class="@parameter.Included.ToString().ToLower()">@parameter.Name</button>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <label>Justification for Changes</label>
+            <div>
+                <textarea id="txtAreaJustificationForChanges" maxlength="2000" style="width:100%;height:150px; border: 1px solid;"></textarea>
+            </div>
+            <button type="button" style="margin: 10px 0px 10px 0px" class="btn btn-primary" onclick="CheckChanges()">Save Changes</button>
+        </div>
+        <div class="col-sm-6">
+            <label>DW Sampling Plan History</label>
+            <div id="narrativeContainer" style="width:100%;height:150px; border: 1px solid;overflow-y:auto">
+            </div>
+        </div>
+    </div>
+</div>

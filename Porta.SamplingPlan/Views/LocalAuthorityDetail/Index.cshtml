@@ -1,0 +1,213 @@
+﻿@model IW.Eims.SamplingPlan.Models.DWSamplingPlan
+
+<script>
+    $(document).ready(function ($){
+        $(".clickable-row").click(function () {
+            var wszSamplingPlanId = $(this).find("input")[0].id;
+
+            LoadMonthlySamplingPlanSummary(wszSamplingPlanId);
+            LoadCrossBoundary(wszSamplingPlanId);
+            LoadParameters(wszSamplingPlanId);
+        });
+
+        $('#wszTableId').DataTable();
+    });
+
+    function LoadMonthlySamplingPlanSummary(wszSamplingPlan) {
+        var url = "/LocalAuthorityDetail/MonthlySamplingPlanSummary/?id=" + wszSamplingPlan;
+        LoadPage(url, "#monthlySamplingPlanSumarryContainer", false, null);
+    }
+
+    function LoadCrossBoundary(wszSamplingPlanId) {
+        var url = "/LocalAuthorityDetail/CrossBoundarySummary?id=" + wszSamplingPlanId;
+        LoadPage(url, "#crossBoundaryContainer", true, null);
+        //$("#crossBoundaryContainer").load(url);
+    }
+
+    function LoadParameters(id) {
+        var url = "/LocalAuthorityDetail/SamplingPlanParameters/" + id;
+        LoadPage(url, "#parametersContainer", false, null);
+    }
+
+    function LoadParametersCount(id)
+    {
+        var url = "/LocalAuthorityDetail/LAParameterCount/" + id;
+        LoadPage(url, "#parameterCountContainer", false, null);
+    }
+
+    function LoadPage(url, divIdDestination, cacheData, callBack) {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            cache: cacheData,
+            success: function (data) {
+                $(divIdDestination).html(data);
+
+                if (callBack != null) {
+                    callBack(data);
+                }
+            }
+        });
+    }
+
+</script>
+
+<style>
+    /*th{
+           white-space:nowrap;
+        }*/
+</style>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Local Authority Index</title>
+</head>
+<body>
+    <div id="hiddenstuff">
+        @Html.Hidden("dwId", Model.Id)
+    </div>
+    <div class="tab-content">
+        <div class="panel panel-default" style="margin-top:10px">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#summaryNationalMenu">Summary National</a></li>
+                <li><a data-toggle="tab" href="#laParameterCountMenu">LA Parameter Count</a></li>
+                <li><a data-toggle="tab" href="#laTotals">LA Totals</a></li>
+            </ul>
+        </div>
+
+        <div id="summaryNationalMenu" class="tab-pane active">
+            <div class="panel panel-default" style="margin-top:10px">
+                <div style="margin:10px;">
+                    <div>
+                        <label>LocalAuthority: </label>
+                        @Html.DisplayTextFor(dw => dw.LocalAuthority.Name)
+                    </div>
+                    <div>
+                        <label>WSZ Sampling Plan: </label>
+                    </div>
+                    <div>
+                        <label>WSZ Sampling Plan Status: </label>
+                    </div>
+
+                    <div>
+                        <table id="wszTableId" class="table table-striped table-hover" style="border:1px solid #dddddd">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        @*Hidden Field*@
+                                    </th>
+                                    <th>
+                                        Water Supply Zone
+                                    </th>
+                                    <th>
+                                        WSZ Eden
+                                    </th>
+                                    <th>
+                                        Derrogation
+                                    </th>
+                                    <th>
+                                        Population
+                                    </th>
+                                    <th>
+                                        Volume
+                                    </th>
+                                    <th>
+                                        Population: Volume
+                                    </th>
+                                    <th>
+                                        Sample Number Criteria
+                                    </th>
+                                    <th>
+                                        Group A (Check) Number Safety Factor %
+                                    </th>
+                                    <th>
+                                        Group B (Audit) Number Safety Factor %
+                                    </th>
+                                    <th>
+                                        Final Number of Group A
+                                    </th>
+                                    <th>
+                                        Final Number of Group B
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var wsz in Model.WSZSamplingPlans)
+                                {
+                                    <tr class='clickable-row'>
+                                        <td>
+                                            <input type="hidden" id="@wsz.Id" name="id" value="@wsz.Id" />
+                                        </td>
+
+                                        <td>
+                                            @wsz.WaterSupplyZone.Name
+                                        </td>
+                                        <td>
+                                            @wsz.WaterSupplyZone.WSZEDENCode
+                                        </td>
+                                        <td>
+                                            @wsz.DerrogationApproved
+                                        </td>
+                                        <td>
+                                            @wsz.PopulationServed
+                                        </td>
+                                        <td>
+                                            @wsz.VolumeDistributed.ToString("#.##")
+                                        </td>
+                                        <td>
+                                            @wsz.PopulationVolumeRatio.ToString("#.##")
+                                        </td>
+                                        <td>
+                                            @wsz.SampleNumberCriteria
+                                        </td>
+                                        <td>
+                                            @wsz.GroupANumberSafetyFactor
+                                        </td>
+                                        <td>
+                                            @wsz.GroupBNumberSafetyFactor
+                                        </td>
+                                        <td>
+                                            @wsz.FinalNumberOfGroupA
+                                        </td>
+                                        <td>
+                                            @wsz.FinalNumberOfGroupB
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="monthlySamplingPlanSumarryContainer"></div>
+                <div id="crossBoundaryContainer"></div>
+                <div id="parametersContainer"></div>
+
+            </div>
+        </div>
+
+        <div id="laParameterCountMenu" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div style="margin:10px;">
+                    @{
+                        Html.RenderAction("LAParameterCount", "LocalAuthorityDetail", new { @dw = Model });
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div id="laTotals" class="tab-pane fade">
+            <div class="panel panel-default">
+                <div style="margin:10px;">
+                    @{
+                        Html.RenderAction("LATotals", "LocalAuthorityDetail", new { @dw = Model });
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

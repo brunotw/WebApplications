@@ -1,0 +1,193 @@
+﻿@using IW.Eims.SamplingPlan.Models.CustomModels
+@model List<IW.Eims.SamplingPlan.Models.CustomModels.MonthlySamplingPlanSummary>
+
+<script>
+    function OnChangeColumn(input)
+    {
+        $.post('@Url.Action("UpdateMonthlySamplingPlan", "LocalAuthorityDetail")',
+        {
+            id: input.id,
+            attribute: input.name,
+            value: input.value
+        },
+        function (data)
+        {
+            SetTotals();
+        });
+    }
+
+    function SetTotals() {
+        try {
+            var tbl = document.getElementById("mspId");
+
+            var groupAAdditionalRow = tbl.rows[2];
+            var groupBAdditional = tbl.rows[4];
+            var totalGroupAAdditional = 0;
+            var totalGroupBAdditional = 0;
+
+            for (var i = 0; i < groupAAdditionalRow.cells.length; i++) {
+                var cell = groupAAdditionalRow.cells[i];
+                var input = $(cell).find("input")[0];
+
+                if (input && input.value != "") {
+                    totalGroupAAdditional = totalGroupAAdditional + parseInt(input.value);
+                }
+            }
+
+            for (var i = 0; i < groupBAdditional.cells.length; i++) {
+                var cell = groupBAdditional.cells[i];
+                var input = $(cell).find("input")[0];
+
+                if (input && input.value != "") {
+                    totalGroupBAdditional = totalGroupBAdditional + parseInt(input.value);
+                }
+            }
+
+            $("#totalGroupAdditional").text(totalGroupAAdditional);
+            $("#totalGroupBAdditional").text(totalGroupBAdditional);
+
+        } catch (e) {
+            alert("Error: " + e.message);
+        }
+    }
+
+    $(".allownumericwithdecimal").on("keypress keyup blur", function (event) {
+        $(this).val($(this).val().replace(/[^0-9\.]/g, ''));
+        if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+
+    $(".allownumericwithoutdecimal").on("keypress keyup blur", function (event) {
+        $(this).val($(this).val().replace(/[^\d].+/, ""));
+        if ((event.which < 48 || event.which > 57)) {
+            event.preventDefault();
+        }
+    });
+</script>
+
+<table id="mspId" class="table table-striped" style="border:1px solid #dddddd">
+    <thead>
+        <tr>
+            <th>
+                Type
+            </th>
+            <th>
+                Jan
+            </th>
+            <th>
+                Feb
+            </th>
+            <th>
+                Mar
+            </th>
+            <th>
+                Apr
+            </th>
+            <th>
+                May
+            </th>
+            <th>
+                Jun
+            </th>
+            <th>
+                Jul
+            </th>
+            <th>
+                Aug
+            </th>
+            <th>
+                Sep
+            </th>
+            <th>
+                Oct
+            </th>
+            <th>
+                Nov
+            </th>
+            <th>
+                Dec
+            </th>
+            <th>
+                Total
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr id="groupA">
+            @{
+                var groupA = Model.Where(f => f.Type == MonthlySamplingPlanSummary.EType.GroupA).FirstOrDefault();
+
+            <td> @groupA.TypeName</td>
+                foreach (var monthlySamplingPlan in groupA.MonthlySamplingPlans)
+                {
+            <td>
+                @monthlySamplingPlan.GroupAChecks
+            </td>
+                }
+            <td>
+                <label>
+                    @groupA.MonthlySamplingPlans.Sum(m => m.GroupAChecks)
+                </label>
+            </td>
+            }
+        </tr>
+
+        <tr id="groupAdditional">
+            @{
+                var groupAdditional = Model.Where(f => f.Type == MonthlySamplingPlanSummary.EType.GroupAAdditional).FirstOrDefault();
+
+                <td> @groupAdditional.TypeName</td>
+                foreach (var monthlySamplingPlan in groupAdditional.MonthlySamplingPlans)
+                {
+                    <td>
+                        <input type="number" id="@monthlySamplingPlan.Id" class="allownumericwithoutdecimal" name="eims_groupa_additional" onchange="OnChangeColumn(this)" value="@monthlySamplingPlan.GroupAAdditional" style="width:40px;" />
+                    </td>
+                }
+                <td>
+                    <label id="totalGroupAdditional">@groupAdditional.MonthlySamplingPlans.Sum(m => m.GroupAAdditional)</label>
+                </td>
+            }
+        </tr>
+
+        <tr id="groupB">
+            @{
+                var groupB = Model.Where(f => f.Type == MonthlySamplingPlanSummary.EType.GroupB).FirstOrDefault();
+
+            <td> @groupB.TypeName</td>
+                foreach (var monthlySamplingPlan in groupB.MonthlySamplingPlans)
+                {
+            <td>
+                @monthlySamplingPlan.GroupBAudits
+            </td>
+                }
+
+            <td>
+                <label>
+                    @groupB.MonthlySamplingPlans.Sum(m => m.GroupBAudits)
+                </label>
+            </td>
+            }
+        </tr>
+
+        <tr id="groupBAdditional">
+            @{
+                var groupBAdditional = Model.Where(f => f.Type == MonthlySamplingPlanSummary.EType.GroupBAdditional).FirstOrDefault();
+
+                <td> @groupBAdditional.TypeName</td>
+                foreach (var monthlySamplingPlan in groupBAdditional.MonthlySamplingPlans)
+                {
+                    <td>
+                        <input type="number" id="@monthlySamplingPlan.Id" name="eims_groupb_additional" onchange="OnChangeColumn(this)" value="@monthlySamplingPlan.GroupBAdditional" style="width:40px;" />
+                    </td>
+                }
+
+                <td>
+                    <label id="totalGroupBAdditional">
+                        @groupBAdditional.MonthlySamplingPlans.Sum(m => m.GroupBAdditional)
+                    </label>
+                </td>
+            }
+        </tr>
+    </tbody>
+</table>

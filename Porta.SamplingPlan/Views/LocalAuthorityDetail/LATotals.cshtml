@@ -1,0 +1,178 @@
+﻿@using IW.Eims.SamplingPlan.Models
+@using IW.Eims.SamplingPlan.Models.CustomModels
+@model IW.Eims.SamplingPlan.Models.DWSamplingPlan
+
+@{
+    List<MonthlyCount> monthlyCounts = new List<MonthlyCount>();
+
+    foreach (ParameterCount p in Model.ParameterCount)
+    {
+        monthlyCounts.AddRange(p.MonthlyCounts);
+    }
+}
+
+@*<div class="container">*@
+<div class="row">
+    <div class="col">
+        <label>Local Authority: </label>
+        @Model.LocalAuthority.Name
+    </div>
+</div>
+
+<div class="row">
+    <div class="col">
+        <table class="table table-striped table-hover" style="width:50%">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Number of Plans</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Approved</td>
+                    <td>@Model.WSZSamplingPlans.Where(m => m.SamplingPlanStatus == WSZSamplingPlan.ESamplingPlanStatus.Approved).Count()</td>
+                </tr>
+                <tr>
+                    <td>Review</td>
+                    <td>@Model.WSZSamplingPlans.Where(m => m.SamplingPlanStatus == WSZSamplingPlan.ESamplingPlanStatus.Review).Count()</td>
+                </tr>
+                <tr>
+                    <td>Draft</td>
+                    <td>@Model.WSZSamplingPlans.Where(m => m.SamplingPlanStatus == WSZSamplingPlan.ESamplingPlanStatus.Draft).Count()</td>
+                </tr>
+                <tr>
+                    <td>Inactive</td>
+                    <td>@Model.WSZSamplingPlans.Where(m => m.SamplingPlanStatus == WSZSamplingPlan.ESamplingPlanStatus.Inactive).Count()</td>
+                </tr>
+                <tr>
+                    <td><label>Total Number of Plans</label></td>
+                    <td>@Model.WSZSamplingPlans.Count()</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col">
+        <span>
+            <img src="~/Images/icon_search20x20.png" />  Sample Counts
+        </span>
+    </div>
+</div>
+
+<div id="sampleCountByMonth" class="row">
+    <div class="col">
+        <table style="width:100%" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Jan</th>
+                    <th>Feb</th>
+                    <th>Mar</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                    <th>Jul</th>
+                    <th>Aug</th>
+                    <th>Sep</th>
+                    <th>Oct</th>
+                    <th>Nov</th>
+                    <th>Dec</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        Group A
+                    </td>
+
+                    @foreach (var x in monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.ACheck).GroupBy(x => x.Month))
+                    {
+                        <td>
+                            @x.Sum(y => y.Total)
+                        </td>
+                    }
+
+                    <td>
+                        @monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.ACheck).Sum(x => x.Total)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Group B
+                    </td>
+
+                    @foreach (var x in monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.BAudit).GroupBy(x => x.Month))
+                    {
+                        <td>
+                            @x.Sum(y => y.Total)
+                        </td>
+                    }
+
+                    <td>
+                        @monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.BAudit).Sum(x => x.Total)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="sampleCountByQuarter" class="row">
+    <div class="col">
+        <table style="width:100%;" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Q1</th>
+                    <th>Q2</th>
+                    <th>Q3</th>
+                    <th>Q4</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Group A
+                    </td>
+
+                    @foreach (var x in monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.ACheck).GroupBy(x => ((x.Date.Month - 1) / 3)))
+                    {
+                        <td>
+                            @x.Sum(y => y.Total)
+                        </td>
+                    }
+
+                    <td>
+                        @monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.ACheck).Sum(x => x.Total)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        Group B
+                    </td>
+
+                    @foreach (var x in monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.BAudit).GroupBy(x => ((x.Date.Month - 1) / 3)))
+                    {
+                        <td>
+                            @x.Sum(y => y.Total)
+                        </td>
+                    }
+
+                    <td>
+                        @monthlyCounts.Where(x => x.GroupType == SamplingPlanParameter.EGroupType.BAudit).Sum(x => x.Total)
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+@*</div>*@

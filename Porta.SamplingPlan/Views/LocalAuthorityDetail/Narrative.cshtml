@@ -1,0 +1,34 @@
+﻿@model IEnumerable<IW.Eims.SamplingPlan.Models.Annotation>
+
+<script>
+      /*$(document).ready(function () {
+            $('#narrativeTableId').DataTable();
+        });*/
+</script>
+
+<table id="narrativeTableId" style="width:100%;" >
+    <thead>
+        <tr>
+            <th>
+                Created On
+            </th>
+            <th>
+                Note Text
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreateOn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NoteText)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
